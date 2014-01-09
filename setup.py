@@ -20,7 +20,7 @@ from distutils.core import Extension
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
-    '''Specialization of build_ext to enable swig_opts to inherit any 
+    '''Specialization of build_ext to enable swig_opts to inherit any
     include_dirs settings made at the command line or in a setup.cfg file'''
     user_options = build_ext.build_ext.user_options + \
             [('openssl=', 'o', 'Prefix for OpenSSL installation location')]
@@ -29,7 +29,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         '''Overload to enable custom OpenSSL settings to be picked up'''
 
         build_ext.build_ext.initialize_options(self)
-        
+
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
@@ -38,8 +38,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         else:
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'
-       
-    
+
+
     def finalize_options(self):
         '''Overloaded build_ext implementation to append custom openssl
         include file and library linking options'''
@@ -48,7 +48,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         opensslIncludeDir = os.path.join(self.openssl, 'include')
         opensslLibraryDir = os.path.join(self.openssl, 'lib')
-        
+
         self.swig_opts = ['-I%s' % i for i in self.include_dirs + \
                           [opensslIncludeDir, os.path.join(opensslIncludeDir, "openssl")]]
         self.swig_opts.append('-includeall')
@@ -71,18 +71,22 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Cygwin directly, then it would work even without this change.
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
-               
+
         self.library_dirs += [os.path.join(self.openssl, opensslLibraryDir)]
 
+if sys.platform == 'darwin':
+   my_extra_compile_args = ["-Wno-deprecated-declarations"]
+else:
+   my_extra_compile_args = []
 
 m2crypto = Extension(name = 'M2Crypto.__m2crypto',
                      sources = ['SWIG/_m2crypto.i'],
-                     extra_compile_args = ['-DTHREADING'],
+                     extra_compile_args = ['-DTHREADING'] + my_extra_compile_args,
                      #extra_link_args = ['-Wl,-search_paths_first'], # Uncomment to build Universal Mac binaries
                      )
 
 setup(name = 'M2Crypto',
-      version = '0.21.1',
+      version = '0.22.3',
       description = 'M2Crypto: A Python crypto and SSL toolkit',
       long_description = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
@@ -96,8 +100,8 @@ used to provide SSL for Twisted.''',
       platforms = ['any'],
       author = 'Ng Pheng Siong',
       author_email = 'ngps at sandbox rulemaker net',
-      maintainer = 'Heikki Toivonen',
-      maintainer_email = 'heikki@osafoundation.org',
+      maintainer = 'Martin Paljak',
+      maintainer_email = 'martin@martinpaljak.net',
       url = 'http://chandlerproject.org/Projects/MeTooCrypto',
       packages = ['M2Crypto', 'M2Crypto.SSL'],
       classifiers = [
