@@ -17,6 +17,7 @@ from setuptools import setup
 from setuptools.command import build_ext
 
 from distutils.core import Extension
+from distutils.spawn import find_executable
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
@@ -39,12 +40,33 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'
 
+    def add_multiarch_paths(self):
+        # Debian/Ubuntu multiarch support.
+        # https://wiki.ubuntu.com/MultiarchSpec
+        if not find_executable('dpkg-architecture'):
+            return
+        tmpfile = os.path.join(self.build_temp, 'multiarch')
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+        ret = os.system(
+            'dpkg-architecture -qDEB_HOST_MULTIARCH > %s 2> /dev/null' %
+            tmpfile)
+        try:
+            if ret >> 8 == 0:
+                with open(tmpfile) as fp:
+                    multiarch_path_component = fp.readline().strip()
+                self.library_dirs.append(os.path.join('/usr/lib/' + multiarch_path_component))
+                self.include_dirs.append(os.path.join('/usr/include/' + multiarch_path_component))
+        finally:
+            os.unlink(tmpfile)
 
     def finalize_options(self):
         '''Overloaded build_ext implementation to append custom openssl
         include file and library linking options'''
 
         build_ext.build_ext.finalize_options(self)
+
+        self.add_multiarch_paths()
 
         opensslIncludeDir = os.path.join(self.openssl, 'include')
         opensslLibraryDir = os.path.join(self.openssl, 'lib')
