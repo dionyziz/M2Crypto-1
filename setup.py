@@ -9,6 +9,7 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
+Copyright 2014 Martin Paljak
 """
 
 import os, sys, platform
@@ -124,7 +125,7 @@ used to provide SSL for Twisted.''',
       author_email = 'ngps at sandbox rulemaker net',
       maintainer = 'Martin Paljak',
       maintainer_email = 'martin@martinpaljak.net',
-      url = 'http://chandlerproject.org/Projects/MeTooCrypto',
+      url = 'https://github.com/martinpaljak/M2Crypto',
       packages = ['M2Crypto', 'M2Crypto.SSL'],
       classifiers = [
           'Development Status :: 5 - Production/Stable',
@@ -134,6 +135,10 @@ used to provide SSL for Twisted.''',
           'Programming Language :: Python',
           'Topic :: Security :: Cryptography',
           'Topic :: Software Development :: Libraries :: Python Modules',
+          'Programming Language :: Python :: 2.5',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: Implementation :: CPython'
       ],
 
       ext_modules = [m2crypto],
